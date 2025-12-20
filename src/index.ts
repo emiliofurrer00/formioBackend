@@ -2,8 +2,12 @@ import express from "express";
 import type { NextFunction, Request, Response } from "express"
 import { requestLogger } from "./lib/logger";
 import { formsRouter } from "./routes/surveys";
+// set up cors
+import cors from "cors";
+
 
 const app = express();
+app.use(cors({ origin: 'http://localhost:3000' }))
 app.use(express.json());
 app.use(requestLogger);
 
@@ -11,8 +15,6 @@ app.use(requestLogger);
 app.use('/forms', formsRouter);
 
 app.get('/health', (_req: Request, res: Response) => res.json({ ok: true }));
-
-const PORT = 3001;
 
 // Error Handling
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
@@ -23,5 +25,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     }
 });
 
-app.listen(PORT, () => console.log(`API listening on http://localhost:3001`));
+const PORT = Number(process.env.PORT || 3001);
+
+app.listen(PORT, "0.0.0.0", () => console.log(`API listening on PORT ${PORT}`));
 
