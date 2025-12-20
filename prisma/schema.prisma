@@ -32,6 +32,7 @@ model Question {
   order     Int
 
   choices   Choice[]
+  answers   Answer[]
 
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
@@ -60,7 +61,7 @@ model Draft {
   form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
 
   // one draft per form for demo (later you can do (formId, userId/sessionId))
-  answers   Json
+  answers   Answer[]
   version   Int      @default(0)
   submitted Boolean  @default(false)
   lastHash  String?
@@ -70,6 +71,24 @@ model Draft {
 
   @@unique([formId])
   @@index([formId])
+}
+
+model Answer {
+  id          String @id @default(cuid())
+  draftId     String
+  questionId  String
+
+  draft       Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  value       String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([draftId, questionId])
+  @@index([draftId])
+  @@index([questionId])
 }
 
 enum QuestionType {
