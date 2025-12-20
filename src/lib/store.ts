@@ -37,58 +37,46 @@ export type Draft = {
     updatedAt?: Date;
 };
 
-const forms = new Map<string, Form>();
-const drafts = new Array<Draft>();
-
-forms.set('1', {
-    id: '1',
-    title: 'Seeded Form',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    questions: [
-        {
-            id: "1",
-            type: 'text',
-            heading: 'this is a sample question',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            options: []
-        },
-        {
-            id: "2",
-            type: 'textarea',
-            heading: 'this is another sample question',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            options: []
-        },
-        {
-            id: "3",
-            type: 'single',
-            heading: 'this is a multiple choice question',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            options: [{ id: "1", label: "Option 1", value: "option1" }, { id: "2", label: "Option 2", value: "option2" }]
-        }
-    ]
-});
-
-export function getForm(id: string): Form | undefined {
-    return forms.get(id);
+export async function getForm(id: string) {
+    return prisma?.form.findUnique(
+        { 
+            where: { id },
+            include: {
+                questions: {
+                    orderBy: { order: "asc" },
+                    include: {
+                        choices: { orderBy: { order: "asc" } }
+                    }
+                }
+            }
+        });
 }
 
-export function getDraft(id: string): Draft | undefined {
-    return drafts.find((draft => draft.formId === id));
+export async function getDraft(id: string) {
+    return prisma?.draft.findUnique({ where: { id } });
 }
 
-export function saveDraft(draft: Draft): Draft {
-    const existingIndex = drafts.findIndex(d => d.id === draft.id);
-    if (existingIndex >= 0) {
-        drafts[existingIndex] = { ...draft, updatedAt: new Date() };
-        return drafts[existingIndex];
-    } else {
-        const newDraft = { ...draft, id: crypto.randomUUID(), createdAt: new Date() };
-        drafts.push(newDraft);
-        return newDraft;
-    }
+export function saveDraft(params: {
+  formId: string;
+  answers: Record<string, string>;
+  version: number;
+  submitted: boolean;
+  lastHash?: string | null;
+}) {
+return prisma?.draft.upsert({
+    where: { formId: params.formId },
+    update: {
+      answers: params.answers,
+      version: params.version,
+      submitted: params.submitted,
+      lastHash: params.lastHash ?? null,
+    },
+    create: {
+      formId: params.formId,
+      answers: params.answers,
+      version: params.version,
+      submitted: params.submitted,
+      lastHash: params.lastHash ?? null,
+    },
+  });
 }
