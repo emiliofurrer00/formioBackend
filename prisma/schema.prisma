@@ -12,3 +12,70 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Form {
+  id        String     @id @default(cuid())
+  title     String
+  questions Question[]
+  drafts    Draft[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Question {
+  id        String       @id @default(cuid())
+  formId    String
+  form      Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  type      QuestionType
+  heading   String
+  order     Int
+
+  choices   Choice[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([formId, order])
+}
+
+model Choice {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  label      String
+  value      String
+  order      Int
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([questionId, order])
+}
+
+model Draft {
+  id        String   @id @default(cuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  // one draft per form for demo (later you can do (formId, userId/sessionId))
+  answers   Json
+  version   Int      @default(0)
+  submitted Boolean  @default(false)
+  lastHash  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([formId])
+  @@index([formId])
+}
+
+enum QuestionType {
+  text
+  textarea
+  single
+  radio
+  checkbox
+}
