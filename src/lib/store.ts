@@ -1,9 +1,16 @@
+export type Option = {
+    id: string;
+    label: string;
+    value: string;
+};  
+
 export type Question = {
     id: string;
     type: 'text' | 'textarea' | 'multi' | 'single';
     heading: string;
     createdAt: Date;
     updatedAt?: Date;
+    options?: Array<Option>;
 };
 
 export type Form = {
@@ -44,7 +51,24 @@ forms.set('1', {
             type: 'text',
             heading: 'this is a sample question',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            options: []
+        },
+        {
+            id: "2",
+            type: 'textarea',
+            heading: 'this is another sample question',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            options: []
+        },
+        {
+            id: "3",
+            type: 'single',
+            heading: 'this is a multiple choice question',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            options: [{ id: "1", label: "Option 1", value: "option1" }, { id: "2", label: "Option 2", value: "option2" }]
         }
     ]
 });
