@@ -1,3 +1,5 @@
+import { prisma } from "./prisma";
+
 export type Option = {
     id: string;
     label: string;
@@ -22,8 +24,9 @@ export type Form = {
 };
 
 export type Answer = {
-    questionId: number;
-    answer: unknown;
+    questionId: string;
+    draftId: string;
+    value: string;
     createdAt: Date;
     updatedAt?: Date;
 };
@@ -38,7 +41,7 @@ export type Draft = {
 };
 
 export async function getForm(id: string) {
-    return prisma?.form.findUnique(
+    return prisma.form.findUnique(
         { 
             where: { id },
             include: {
@@ -53,30 +56,60 @@ export async function getForm(id: string) {
 }
 
 export async function getDraft(id: string) {
-    return prisma?.draft.findUnique({ where: { id } });
+    return prisma.draft.findUnique({ where: { id }, include: { answers: true } });
 }
 
-export function saveDraft(params: {
+export async function saveDraft(params: {
   formId: string;
-  answers: Record<string, string>;
+  answers: Answer[];
   version: number;
   submitted: boolean;
   lastHash?: string | null;
 }) {
-return prisma?.draft.upsert({
-    where: { formId: params.formId },
-    update: {
-      answers: params.answers,
-      version: params.version,
-      submitted: params.submitted,
-      lastHash: params.lastHash ?? null,
-    },
-    create: {
-      formId: params.formId,
-      answers: params.answers,
-      version: params.version,
-      submitted: params.submitted,
-      lastHash: params.lastHash ?? null,
-    },
-  });
+    return prisma.$transaction(async (tx) => {
+        const draft = await tx?.draft.upsert({
+            where: { formId: params.formId },
+            update: {
+                version: params.version,
+                submitted: params.submitted,
+                lastHash: params.lastHash ?? null,
+            },
+            create: {
+                formId: params.formId,
+                version: params.version,
+                submitted: params.submitted,
+                lastHash: params.lastHash ?? null,
+            },
+        });
+
+        if(params.answers.length > 0) {
+            await Promise.all(params.answers.map(async (answer) => {
+                await tx.answer.upsert({
+                    where: {
+                        draftId_questionId: {
+                            draftId: draft.id,
+                            questionId: answer.questionId,
+                        }
+                    },
+                    update: {
+                        value: answer.value,
+                        updatedAt: new Date(),
+                    },
+                    create: {
+                        draftId: draft.id,
+                        questionId: answer.questionId,
+                        value: answer.value,
+                        createdAt: new Date(),
+                    },
+                });
+            }));
+        }
+
+         return tx.draft.findUnique({
+            where: { id: draft.id },
+            include: {
+                answers: true, // or `answers: true` depending on your relation field name
+            },
+        });
+    });
 }

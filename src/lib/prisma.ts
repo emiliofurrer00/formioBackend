@@ -1,18 +1,15 @@
 import { PrismaClient } from '../generated/prisma/client'
 import { PrismaPg } from "@prisma/adapter-pg";
+import "dotenv/config";
+
+const url = process.env.DATABASE_URL;
+if (!url) throw new Error("DATABASE_URL is not set");
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
+  connectionString: url,
 });
 
-// Prevent creating many PrismaClient instances during dev hot reload
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
 export const prisma =
-  global.prisma ??
   new PrismaClient({
     adapter,
     log: ["query", "error", "warn"], // enable if you want
