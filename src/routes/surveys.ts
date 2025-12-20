@@ -30,7 +30,7 @@ const SaveDraftReqBody = z.object({
     formId: z.string()
 });
 
-formsRouter.post("/:id", (req: Request, res: Response) => {
+formsRouter.post("/:id/submit", (req: Request, res: Response) => {
     const { id } = req.params;
     const parsedBody = SaveDraftReqBody.safeParse(req.body);
     if (!parsedBody.success) {
