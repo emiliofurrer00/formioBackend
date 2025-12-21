@@ -1,8 +1,8 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express"
-import { requestLogger } from "./lib/logger";
-import { formsRouter } from "./routes/surveys";
-import { HttpError } from "../src/lib/errors";
+import { requestLogger } from "./lib/logger.js";
+import { formsRouter } from "./routes/surveys.js";
+import { HttpError } from "./lib/errors.js";
 // set up cors
 import cors from "cors";
 

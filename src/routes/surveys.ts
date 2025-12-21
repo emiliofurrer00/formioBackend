@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { getDraft, getForm, saveDraft } from "../lib/store";
+import { getDraft, getForm, saveDraft } from "../lib/store.js";
 import z from "zod";
-import { HttpError } from "../lib/errors";
-import { asyncHandler } from "../lib/asyncHandler";
+import { HttpError } from "../lib/errors.js";
+import { asyncHandler } from "../lib/asyncHandler.js";
 
 export const formsRouter = Router();
 
