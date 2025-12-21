@@ -1,4 +1,3 @@
-import { TransactionClient } from "../generated/prisma/internal/prismaNamespace";
 import { prisma } from "./prisma";
 
 export type Option = {
@@ -67,7 +66,7 @@ export async function saveDraft(params: {
   submitted: boolean;
   lastHash?: string | null;
 }) {
-    return prisma.$transaction(async (tx: TransactionClient) => {
+    return prisma.$transaction(async (tx: any) => {
         const draft = await tx?.draft.upsert({
             where: { formId: params.formId },
             update: {
