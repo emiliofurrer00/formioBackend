@@ -10,6 +10,11 @@ COPY package.json yarn.lock ./
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
+# Specify the variable you need
+ARG DATABASE_URL
+# Use the variable
+RUN echo $DATABASE_URL
+
 # Copy prisma schema and generate client
 COPY prisma ./prisma/
 RUN yarn prisma:generate
@@ -31,6 +36,11 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+
+# Specify the variable you need
+ARG DATABASE_URL
+# Use the variable
+RUN echo $DATABASE_URL
 
 # Expose the application port
 EXPOSE 3001
