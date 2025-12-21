@@ -1,5 +1,5 @@
-import { TransactionClient } from "../generated/prisma/internal/prismaNamespace.js";
-import { prisma } from "./prisma.js";
+import { TransactionClient } from "../generated/prisma/internal/prismaNamespace";
+import { prisma } from "./prisma";
 
 export type Option = {
     id: string;

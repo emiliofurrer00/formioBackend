@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { getDraft, getForm, saveDraft } from "../lib/store.js";
+import { getDraft, getForm, saveDraft } from "../lib/store";
 import z from "zod";
-import { HttpError } from "../lib/errors.js";
-import { asyncHandler } from "../lib/asyncHandler.js";
+import { HttpError } from "../lib/errors";
+import { asyncHandler } from "../lib/asyncHandler";
 
 export const formsRouter = Router();
 
@@ -66,5 +66,5 @@ formsRouter.post("/:id/submit", asyncHandler(async (req: Request, res: Response)
     }
     // Update existing draft
     const savedDraft = saveDraft({... existingDraft, answers: parsedAnswers, updatedAt: new Date() } as any);
-    res.json({ draft: savedDraft });
+    return res.json({ draft: savedDraft });
 }));
