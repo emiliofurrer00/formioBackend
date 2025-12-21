@@ -6,11 +6,18 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 } 
 
-console.log("Has DATABASE_URL key:", Object.prototype.hasOwnProperty.call(process.env, "DATABASE_URL"));
-console.log("DATABASE_URL length:", process.env.DATABASE_URL?.length ?? 0);
-console.log("ENV KEYS:", Object.keys(process.env).filter(k => k.includes("DATABASE") || k.includes("DB")));
+const url = process.env.DATABASE_URL || "";
 
-const url = process.env.DATABASE_URL;
+const redacted = url.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@");
+console.log("DB URL (redacted):", redacted);
+
+try {
+  const u = new URL(url);
+  console.log("DB host:", u.hostname, "port:", u.port, "db:", u.pathname);
+} catch {
+  console.log("DATABASE_URL is not a valid URL shape");
+}
+
 if (!url) throw new Error("DATABASE_URL is not set");
 
 const adapter = new PrismaPg({
