@@ -1,11 +1,10 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express"
-import { requestLogger } from "./lib/logger";
-import { formsRouter } from "./routes/surveys";
+import { requestLogger } from "./middleware/logger";
+import { formsRouter } from "./routes/forms.routes";
 import { HttpError } from "./lib/errors";
 // set up cors
 import cors from "cors";
-
 
 const app = express();
 app.use(cors({ origin: ['http://localhost:3000','https://formio-client-rho.vercel.app'] }))
