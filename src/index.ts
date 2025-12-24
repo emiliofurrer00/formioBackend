@@ -1,9 +1,8 @@
 import express from "express";
-import type { NextFunction, Request, Response } from "express"
+import type { Request, Response } from "express"
 import { requestLogger } from "./middleware/logger";
 import { formsRouter } from "./routes/forms.routes";
-import { HttpError } from "./lib/errors";
-// set up cors
+import { ErrorHandler } from "./middleware/errorHandler";
 import cors from "cors";
 
 const app = express();
@@ -16,17 +15,8 @@ app.use('/forms', formsRouter);
 
 app.get('/health', (_req: Request, res: Response) => res.json({ ok: true }));
 
-// Error Handling
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.log('Error handler caught an error:', err);
-    if (err instanceof HttpError){
-        const { code, message, details } = err;
-        const errorJson = { error: code, message, details };
-        return res.status(err.status).json(errorJson);
-    }
-    console.error("Unhandled error:", err);
-    return res.status(500).json({ error: { code: "INTERNAL", message: "Internal server error" } });
-});
+// Error Handling Middleware
+app.use(ErrorHandler);
 
 const PORT = Number(process.env.PORT || 3001);
 
