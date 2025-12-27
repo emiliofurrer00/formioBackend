@@ -17,7 +17,7 @@ export function createFormsRepo(prisma: PrismaClient){
             });
         }
      async function getDraft(id: string) {
-            return prisma.draft.findUnique({ where: { id }, include: { answers: true } });
+            return prisma.draft.findUnique({ where: { formId: id }, include: { answers: true } });
     }
      async function saveDraft(params: {
             formId: string;
@@ -41,9 +41,11 @@ export function createFormsRepo(prisma: PrismaClient){
                         lastHash: params.lastHash ?? null,
                     },
                 });
-                
-                if(params.answers.length > 0) {
-                    await Promise.all(params.answers.map(async (answer) => {
+                const parsedAnswers = Object.values(params?.answers || {});
+                console.log("Parsed Answers:", parsedAnswers);
+                console.log("Draft ID:", draft.id);
+                if(parsedAnswers.length > 0) {
+                    await Promise.all(parsedAnswers.map(async (answer) => {
                         await tx.answer.upsert({
                             where: {
                                 draftId_questionId: {
