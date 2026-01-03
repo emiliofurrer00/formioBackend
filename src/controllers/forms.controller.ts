@@ -16,7 +16,7 @@ const SaveDraftReqBody = z.object({
 });
 
 export function createFormsController(formsService: IFormsService) {
-    async function getForm(req: Request, res: Response, next: any) {
+    async function getForm(req: Request, res: Response, next: NextFunction) {
         try {
             const formId = req.params.id;
             const form = await formsService.getForm(formId);
@@ -28,7 +28,7 @@ export function createFormsController(formsService: IFormsService) {
         }
     }
 
-    async function autosaveDraft(req: Request, res: Response, next: NextFunction) {
+    async function autosaveDraft(req: Request, res: Response, _next: NextFunction) {
         const parsedBody = SaveDraftReqBody.safeParse(req.body);
         if (!parsedBody.success) {
             return res.status(400).json({ error: 'Invalid request body', details: z.treeifyError(parsedBody.error) });
@@ -39,7 +39,7 @@ export function createFormsController(formsService: IFormsService) {
         return res.status(200).json({ message: "Draft autosaved successfully" });
     }
 
-    async function submitDraft(req: Request, res: Response, next: NextFunction) {
+    async function submitDraft(req: Request, res: Response, _next: NextFunction) {
         const parsedBody = SaveDraftReqBody.safeParse(req.body);
         if (!parsedBody.success) {
             return res.status(400).json({ error: 'Invalid request body', details: z.treeifyError(parsedBody.error) });
