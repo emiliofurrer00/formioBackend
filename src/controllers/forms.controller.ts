@@ -10,7 +10,7 @@ const AnswerSchema = z.object({
 });
 
 const SaveDraftReqBody = z.object({
-    userEmail: z.string().email().optional(),
+    userEmail: z.email().optional(),
     answers: z.record(z.string(), AnswerSchema),
     formId: z.string()
 });
