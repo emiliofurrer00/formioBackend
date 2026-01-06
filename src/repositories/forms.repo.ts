@@ -1,7 +1,43 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, QuestionType } from "@prisma/client";
 import { Answer } from "../types/forms.types";
 
 export function createFormsRepo(prisma: PrismaClient){
+    async function createForm(params: {
+        title: string,
+        questions: Array<{ heading: string, type: QuestionType, order: number }>
+    }){
+        const { title, questions } = params;
+        return prisma.$transaction(async (tx: any) => {
+            const form = tx?.form.create({
+                title
+            })
+
+            if (questions.length){
+                await Promise.all(questions.map(async (question) => {
+                    const { heading, type, order } = question;
+                    const dbQuestion = await tx?.question.create({
+                        heading,
+                        type,
+                        order,
+                        formId: form.id
+                    })
+                    return dbQuestion;
+                }))
+            }
+            return tx?.form.findUnique((
+            { 
+                where: { id: form.id },
+                include: {
+                    questions: {
+                        orderBy: { order: "asc" },
+                        include: {
+                            choices: { orderBy: { order: "asc" } }
+                        }
+                    }
+                }
+            }))
+        });
+    }
     async function getForm(id: string) {
         return prisma.form.findUnique(
             { 
@@ -75,5 +111,5 @@ export function createFormsRepo(prisma: PrismaClient){
                 });
             });
         }
-    return { getForm, getDraft, saveDraft };
+    return { getForm, getDraft, saveDraft, createForm };
 }
