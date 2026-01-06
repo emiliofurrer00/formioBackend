@@ -1,3 +1,5 @@
+import { Draft } from "@prisma/client";
+
 export type Option = {
     id: string;
     label: string;
@@ -40,7 +42,7 @@ export type DraftClientDto = {
 
 export interface IFormsRepository {
     getForm(id: string): Promise<Form | null>;
-    getDraft(id: string): Promise<any | null>;
+    getDraft(id: string): Promise<DraftDto | null>;
     saveDraft(params: {
         formId: string;
         answers: Answer[];
@@ -50,9 +52,13 @@ export interface IFormsRepository {
     }): Promise<void>;
 }
 
+interface DraftDto extends Draft {
+    answers: Answer[];
+}
+
 export interface IFormsService {
     getForm(id: string): Promise<Form | null>;
-    getDraft(formId: string): Promise<any | null>;
+    getDraft(formId: string): Promise<DraftDto | null>;
     autosaveDraft(params: {
         formId: string;
         answers: Answer[];
